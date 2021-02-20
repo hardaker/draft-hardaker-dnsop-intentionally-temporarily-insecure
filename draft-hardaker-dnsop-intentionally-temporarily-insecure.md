@@ -25,6 +25,11 @@ normative:
   RFC8174:
 
 informative:
+  RFC7929:
+  RFC7671:
+  RFC7672:
+  RFC6698:
+  RFC4255:
 
 --- abstract
 
