@@ -103,6 +103,70 @@ followed carefully, although there are less than are required by the
 proper procedure  defined in Section 4.1.4 of {{RFC6781}}.  These are
 the functional steps required by this alternate transition mechanism:
 
+1. Optional: lower the TTLs of the DS record if possible and the
+   zone's SOA negative cache time
+
+2. Remove all DS records from the parent zone
+
+3. Wait 2 times the maximum TTL length for the DS record to expire
+
+4. Remove the old keys from the zone
+
+5. Add new key(s) with the new algorithm(s) to the zone and publish
+   the zone
+   
+6. Wait 2 times the zone SOA's published negative cache time
+
+7. Add the new DS record(s) to the parent zone
+
+8. If the TTLs were modified in optional step 0, change them back to
+   their preferred values.
+
+# Operational considerations
+
+The process of replacing a DNSKEY with an older algorithm, such as
+RSAMD5 or RSASHA1 with a more modern one such as RSASHA512 or
+ECDSAP256SHA256 can be a daunting task if the zone's current tooling
+doesn't provide an easy-to-use solution.  This is the case for zone
+owners that potentially use command line tools that are integrated
+into their zone production environment.
+
+This document describes an alternative approach to rolling DNSKEY
+algorithms that may be significantly less prone to operational
+mistakes.  However, understanding of the security considerations of
+using this approach is paramount.
+
+# Security considerations
+
+DNSSEC provides an data integrity protection for DNS data.  This
+document specifically calls out a reason why a zone owner may desire
+to deliberately turn off DNSSEC while changing the zone's DNSKEY's
+cryptographic algorithms.  Thus, this is deliberately turning off
+security which is potentially harmful if an attacker knows when this
+will occur and can use that time window to launch DNS modification
+attacks (for example, cache poisoning attacks) against validating
+resolvers or other validating DNS infrastructure.
+
+Most importantly, this will deliberately break certain types of DNS
+records that must be validatable for them to be effective.  This
+includes for example, but not limited to, all DS records for child
+zones, DANE {{RFC6698}}{{RFC7671}}{{RFC7672}}, PGP keys {{RFC7929}},
+and SSHFP{{RFC4255}}.  Zone owners must carefully consider which
+records within their zone depend on DNSSEC being available before
+using the procedure outlined in this document.
+
+Given all of this, it leaves the question of: "why would a zone owner
+want to deliberately turn off security temporarily then?", to which
+there is one principal answer.  Simply put, if the the complexity of
+doing it the correct way is difficult with existing tooling then the
+chances of performing the more complex procedure and introducing an
+error, likely making the entire zone unavailable during that time
+period, may be significantly higher than the chances of the zone being
+attacked during the transition period of the simpler approach where
+zone availability is less likely to be impacted.  Simply put, an
+invalid zone created by a botched algorithm roll is potentially worse
+than an unsigned but still available zone.
+
 --- back
 
 # Acknowledgments
