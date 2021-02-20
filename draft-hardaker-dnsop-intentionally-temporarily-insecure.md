@@ -113,7 +113,9 @@ the functional steps required by this alternate transition mechanism:
 
 2. Remove all DS records from the parent zone
 
-3. Wait 2 times the maximum TTL length for the DS record to expire
+3. Wait 2 times the maximum TTL length for the DS record to expire.
+   This is the most critical timing.  The author of this document
+   failed to wait the required time once.  It was not pretty.
 
 4. Remove the old keys from the zone
 
