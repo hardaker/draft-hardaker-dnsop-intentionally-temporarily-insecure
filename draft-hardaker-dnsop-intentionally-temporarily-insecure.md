@@ -103,31 +103,31 @@ old key and the introduction of a new key with a new algorithm.  Zone
 TTLs may be significantly shortened during this period to minimize the
 period of insecurity.
 
-Note that there are still some timing requirements that must be
-followed carefully, although there are less than are required by the
-proper procedure  defined in Section 4.1.4 of {{RFC6781}}.  These are
-the functional steps required by this alternate transition mechanism:
+Below are the steps required by this alternate transition mechanism.
+Note that there are still two critical waiting timing requirements
+(steps 2 and 6) that must be followed carefully.
 
-1. Optional: lower the TTLs of the DS record if possible and the
-   zone's SOA negative cache time
+1. Optional: lower the TTLs of the zone's DS record (if possible) and
+   the SOA's negative TTL (MINIMUM) {{RFC1035}}.
 
-2. Remove all DS records from the parent zone
+2. Remove all DS records from the parent zone.
 
-3. Wait 2 times the maximum TTL length for the DS record to expire.
-   This is the most critical timing.  The author of this document
-   failed to wait the required time once.  It was not pretty.
+3. Ensure the zone is considered unsigned by all validating resolvers
+   by waiting 2 times the maximum TTL length for the DS record to
+   expire from caches.  This is the most critical timing.  The author
+   of this document failed to wait the required time once.  It was not
+   pretty.
 
-4. Remove the old keys from the zone
-
-5. Add new key(s) with the new algorithm(s) to the zone and publish
-   the zone
+4. Replace the old DNSKEY(s) with the old algorithm with new DNSKEY(s)
+   with the new algorithm(s) in the zone and publish the zone.
    
-6. Wait 2 times the zone SOA's published negative cache time
+6. Wait 2 times the zone SOA's published negative cache time to ensure
+   the new DNSKEYs will be found by validating resolvers.
 
-7. Add the new DS record(s) to the parent zone
+7. Add the DS record(s) for the new DNSKEYs to the parent zone.
 
-8. If the TTLs were modified in optional step 0, change them back to
-   their preferred values.
+8. If the TTLs were modified in the optional step 1, change them back
+   to their preferred values.
 
 # Operational considerations
 
@@ -142,6 +142,11 @@ This document describes an alternative approach to rolling DNSKEY
 algorithms that may be significantly less prone to operational
 mistakes.  However, understanding of the security considerations of
 using this approach is paramount.
+
+The document recommends waiting 2 times TTL values in certain cases
+for added assurance that the waiting period is long enough for caches
+to expire.  In reality, waiting only 1 TTL may be sufficient assuming
+all clocks around the world are operating with perfection. 
 
 # Security considerations
 
