@@ -1,7 +1,7 @@
 ---
 title: "Intentionally Temporarily Insecure"
 abbrev: "Intentionally Temporarily Insecure"
-docname: draft-hardaker-dnsop-intentionally-temporarily-insecure-00
+docname: draft-hardaker-dnsop-intentionally-temporary-insec-00
 category: bcp
 ipr: trust200902
 
