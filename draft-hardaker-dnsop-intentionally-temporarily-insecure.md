@@ -33,57 +33,57 @@ informative:
 
 --- abstract
 
-Performing algorithm transitions in DNSSEC signing is unfortunately
-challenging to get right in practice.  This document weighs the
-correct, completely secure way of doing so against an alternate path
-that takes a zone through an insecure state but using a significantly
-simplified process. 
+Performing DNSKEY algorithm transitions with DNSSEC signing is
+unfortunately challenging to get right in practice without decent
+tooling support.  This document weighs the correct, completely secure
+way of rolling keys against an alternate, significantly simplified,
+method that takes a zone through an insecure state.
 
 --- middle
 
 # Introduction
 
-Performing algorithm transitions in DNSSEC {{RFC4033}} signing is
-unfortunately challenging to get right in practice.  This document
-weighs the correct, completely secure way of doing so against an
-alternate path that takes a zone through an insecure state but using a
-significantly simplified process.
+Performing DNSKEY {{RFC4035}} algorithm transitions with DNSSEC
+{{RFC4033}} signing is unfortunately challenging to get right in
+practice without decent tooling support.  This document weighs the
+correct, completely secure way of rolling keys against an alternate,
+significantly simplified, method that takes a zone through an insecure
+state.
 
 Section 4.1.4 of {{RFC6781}} describes the necessary steps required
-when a new signing key is published for a zone that is of a different
-algorithm than the currently published keys.  These are the steps that
-MUST be followed when zone owners wish to have uninterrupted DNSSEC
-protection for their zones.  The steps in this document are designed
-to ensure that all DNSKEYs {{RFC4035}} and all DS {{RFC4509}} records
-are properly validatable by validating resolvers throughout the entire
-process.
+when a new signing key is published for a zone that uses a different
+signing algorithm than the currently published keys.  These are the
+steps that MUST be followed when zone owners wish to have
+uninterrupted DNSSEC protection for their zones.  The steps in this
+document are designed to ensure that all DNSKEY records and all DS
+{{RFC4509}} records (and the rest of a zone records) are properly
+validatable by validating resolvers throughout the entire process.
 
-Unfortunately, there are a number of these steps that are difficult to
-accomplish either because they're tricky to get right timing-wise or
-because current software doesn't support them easily.  For example,
-the second step in Section 4.1.4 of {{RFC6781}} requires that a new
-key be created, but not published, with the new algorithm (which we
-refer to as K_new).  This step requires that K_new sign the zone, but
-only its signatures, but not K_new itself, be put into a published
-zone that is signed with the original key (K_old).  Only after this
-has been published for a sufficient time length, based on the TTL, can
-the K_new be safely introduced and published into the zone.
+Unfortunately, there are a number of these steps that are challenging
+to accomplish either because the timing is tricky to get right or
+because current software doesn't support automating the process
+easily.  For example, the second step in Section 4.1.4 of {{RFC6781}}
+requires that a new key with the new algorithm (which we refer to as
+K_new) be created, but not yet published.  This step also requires
+that both the old key (K_old) and K_new sign and generate signatures
+for the zone, but with only the K_old key is published even though
+signatures from K_new are included.  After this odd mix has been
+published for a sufficient time length, based on the TTL, can K_new be
+safely introduced and published into the zone as well.
 
-Similarly, after the new DS (DS_new) is published, K_old can be
-removed but while its (still valid) signatures continue to be
-published for another TTL.
-
-Although many DNSSEC signing solutions may automate these steps,
-making operator involvement unnecessary, many other tools do not
-support automated algorithm updates to support these steps, and their
-associated timing.  Specifically, the requirement that certain RRSIGs
-be published without the corresponding DNSKEYs that created them will
-likely require operators to use a text editor on the contents of a
-signed zone, now introducing potential significant operator error.
+Although many DNSSEC signing solutions may automate the algorithm
+rollover steps (making operator involvement unnecessary), many other
+tools do not support automated algorithm updates.  In these
+environments, the most challenging step is requiring that certain
+RRSIGs be published without the corresponding DNSKEYs that created
+them.  This will likely require operators to use a text editor on the
+contents of a signed zone to carefully select zone records to extract
+before publication.  This introduces potentially significant operator
+error(s).
 
 This document proposes an alternate, potentially more operationally
-robust but less secure approach to performing algorithm DNSKEY
-rollovers.
+robust but less secure, approach to performing algorithm DNSKEY
+rollovers for use in these situations.
 
 ## Requirements notation
 
@@ -95,17 +95,18 @@ rollovers.
 
 # Transitioning temporarily through insecurity
 
-An alternate approach, especially when the toolsets being used do not
-provide easy algorithm rollover approaches, is to intentionally make
-the zone become insecure while the algorithm is swapped.  This means
-removing all DS records from the parent zone during the removal of the
-old key and the introduction of a new key with a new algorithm.  Zone
-TTLs may be significantly shortened during this period to minimize the
-period of insecurity.
+An alternate approach to rolling DNSKEYs, especially when the toolsets
+being used do not provide easy algorithm rollover approaches, is to
+intentionally make the zone become insecure while the DNSKEYs and
+algorithms are swapped.  At a high level, this means removing all DS
+records from the parent zone during the removal of the old key and the
+introduction of a new key using a new algorithm.  Zone TTLs may be
+significantly shortened during this period to minimize the period of
+insecurity.
 
-Below are the steps required by this alternate transition mechanism.
-Note that there are still two critical waiting timing requirements
-(steps 2 and 6) that must be followed carefully.
+Below are the enumerated steps required by this alternate transition
+mechanism.  Note that there are still two critical waiting time
+requirements (steps 2 and 6) that must be followed carefully.
 
 1. Optional: lower the TTLs of the zone's DS record (if possible) and
    the SOA's negative TTL (MINIMUM) {{RFC1035}}.
