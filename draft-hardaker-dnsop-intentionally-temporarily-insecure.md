@@ -115,7 +115,7 @@ requirements (steps 2 and 6) that must be followed carefully.
 2. Remove all DS records from the parent zone.
 
 3. Ensure the zone is considered unsigned by all validating resolvers
-   by waiting 2 times the maximum TTL length for the DS record, and/or 2 times the DNSKEY TTL (whichever is larger) to
+   by waiting 2 times the maximum TTL length for the DS record, and/or 2 times the largest TTL found in the zone (whichever is larger) to
    expire from caches.  This is the most critical timing.  The author
    of this document failed to wait the required time once.  It was not
    pretty.
@@ -123,7 +123,7 @@ requirements (steps 2 and 6) that must be followed carefully.
 4. Replace the old DNSKEY(s) with the old algorithm with new DNSKEY(s)
    with the new algorithm(s) in the zone and publish the zone.
    
-6. Wait 2 times the TTL of the DNSKEY RRset to ensure
+6. Wait 2 times the largest TTL found in the zone to ensure
    the new DNSKEYs will be found by validating resolvers.
 
 7. Add the DS record(s) for the new DNSKEYs to the parent zone.
