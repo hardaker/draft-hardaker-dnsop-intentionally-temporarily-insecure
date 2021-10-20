@@ -158,8 +158,8 @@ Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
    mechanism.  Note that there are still two critical waiting time
    requirements (steps 2 and 6) that must be followed carefully.
 
-   1.  Optional: lower the TTLs of the zone's DS record (if possible)
-       and the SOA's negative TTL (MINIMUM) [RFC1035].
+   1.  Optional: lower the TTLs of the zone's DS record (if possible),
+       and the TTL of the DNSKEY RRset.
 
    2.  Remove all DS records from the parent zone.
 
@@ -172,16 +172,17 @@ Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
 
    3.  Ensure the zone is considered unsigned by all validating
        resolvers by waiting 2 times the maximum TTL length for the DS
-       record to expire from caches.  This is the most critical timing.
-       The author of this document failed to wait the required time
-       once.  It was not pretty.
+       record, and/or 2 times the largest TTL found in the zone
+       (whichever is larger) to expire from caches.  This is the most
+       critical timing.  The author of this document failed to wait the
+       required time once.  It was not pretty.
 
    4.  Replace the old DNSKEY(s) with the old algorithm with new
        DNSKEY(s) with the new algorithm(s) in the zone and publish the
        zone.
 
-   5.  Wait 2 times the zone SOA's published negative cache time to
-       ensure the new DNSKEYs will be found by validating resolvers.
+   5.  Wait 2 times the largest TTL found in the zone to ensure the new
+       DNSKEYs will be found by validating resolvers.
 
    6.  Add the DS record(s) for the new DNSKEYs to the parent zone.
 
@@ -215,7 +216,6 @@ Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
        nameservers.
 
    4.  Wait a period of time equal to max(TTL in the zone, DS record).
-
 
 
 
