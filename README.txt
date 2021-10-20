@@ -95,17 +95,17 @@ Table of Contents
    Unfortunately, there are a number of these steps that are challenging
    to accomplish either because the timing is tricky to get right or
    because current software doesn't support automating the process
-   easily.  For example, the second step in Section 4.1.4 of [RFC6781]
-   requires that a new key with the new algorithm (which we refer to as
-   K_new) be created, but not yet published.  This step also requires
-   that both the old key (K_old) and K_new sign and generate signatures
-   for the zone, but with only the K_old key is published even though
-   signatures from K_new are included.  After this odd mix has been
-   published for a sufficient time length, based on the TTL, can K_new
-   be safely introduced and published into the zone as well.
+   easily.  Some examples:
 
-
-
+   1.  The second step in Section 4.1.4 of [RFC6781] requires that a new
+       key with the new algorithm (which we refer to as K_new) be
+       created, but not yet published.  This step also requires that
+       both the old key (K_old) and K_new sign and generate signatures
+       for the zone, but with only the K_old key is published even
+       though signatures from K_new are included.  After this odd mix
+       has been published for a sufficient time length, based on the
+       TTL, can K_new be safely introduced and published into the zone
+       as well.
 
 
 
@@ -113,6 +113,11 @@ Hardaker                  Expires 23 April 2022                 [Page 2]
 
 Internet-Draft     Intentionally Temporarily Insecure       October 2021
 
+
+   2.  The new algorithm to be deployed isn't supported in the existing
+       DNSSEC signing software and it is not possible (or not desired)
+       to move the private key into the DNSSEC signer that supports the
+       new algorithm choice.
 
    Although many DNSSEC signing solutions may automate the algorithm
    rollover steps (making operator involvement unnecessary), many other
@@ -157,11 +162,6 @@ Internet-Draft     Intentionally Temporarily Insecure       October 2021
        and the SOA's negative TTL (MINIMUM) [RFC1035].
 
    2.  Remove all DS records from the parent zone.
-
-
-
-
-
 
 
 
