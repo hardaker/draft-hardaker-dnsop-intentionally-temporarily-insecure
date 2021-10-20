@@ -1,6 +1,6 @@
 ---
-title: "Intentionally Temporarily Insecure"
-abbrev: "Intentionally Temporarily Insecure"
+title: "Intentionally Temporarily Degraded or Insecure"
+abbrev: "Intentionally Temporarily Degraded or Insecure"
 docname: draft-hardaker-dnsop-intentionally-temporary-insec-01
 category: bcp
 ipr: trust200902

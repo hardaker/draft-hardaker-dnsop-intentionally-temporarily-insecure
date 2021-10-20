@@ -8,7 +8,7 @@ Intended status: Best Current Practice                   20 October 2021
 Expires: 23 April 2022
 
 
-                   Intentionally Temporarily Insecure
+             Intentionally Temporarily Degraded or Insecure
          draft-hardaker-dnsop-intentionally-temporary-insec-01
 
 Abstract
@@ -55,7 +55,7 @@ Copyright Notice
 
 Hardaker                  Expires 23 April 2022                 [Page 1]
 
-Internet-Draft     Intentionally Temporarily Insecure       October 2021
+Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
 
 
 Table of Contents
@@ -111,7 +111,7 @@ Table of Contents
 
 Hardaker                  Expires 23 April 2022                 [Page 2]
 
-Internet-Draft     Intentionally Temporarily Insecure       October 2021
+Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
 
 
    2.  The new algorithm to be deployed isn't supported in the existing
@@ -167,7 +167,7 @@ Internet-Draft     Intentionally Temporarily Insecure       October 2021
 
 Hardaker                  Expires 23 April 2022                 [Page 3]
 
-Internet-Draft     Intentionally Temporarily Insecure       October 2021
+Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
 
 
    3.  Ensure the zone is considered unsigned by all validating
@@ -223,7 +223,7 @@ Internet-Draft     Intentionally Temporarily Insecure       October 2021
 
 Hardaker                  Expires 23 April 2022                 [Page 4]
 
-Internet-Draft     Intentionally Temporarily Insecure       October 2021
+Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
 
 
    5.  Simultaneously remove the old DS record from the parent, and
@@ -279,7 +279,7 @@ Internet-Draft     Intentionally Temporarily Insecure       October 2021
 
 Hardaker                  Expires 23 April 2022                 [Page 5]
 
-Internet-Draft     Intentionally Temporarily Insecure       October 2021
+Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
 
 
    Most importantly, this will deliberately break certain types of DNS
@@ -335,7 +335,7 @@ Internet-Draft     Intentionally Temporarily Insecure       October 2021
 
 Hardaker                  Expires 23 April 2022                 [Page 6]
 
-Internet-Draft     Intentionally Temporarily Insecure       October 2021
+Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
 
 
    [RFC6781]  Kolkman, O., Mekking, W., and R. Gieben, "DNSSEC
@@ -391,7 +391,7 @@ Appendix A.  Acknowledgments
 
 Hardaker                  Expires 23 April 2022                 [Page 7]
 
-Internet-Draft     Intentionally Temporarily Insecure       October 2021
+Internet-Draft  Intentionally Temporarily Degraded or In    October 2021
 
 
    *  Paul Wouters
