@@ -1,7 +1,7 @@
 ---
 title: "Intentionally Temporarily Insecure"
 abbrev: "Intentionally Temporarily Insecure"
-docname: draft-hardaker-dnsop-intentionally-temporary-insec-00
+docname: draft-hardaker-dnsop-intentionally-temporary-insec-01
 category: bcp
 ipr: trust200902
 
@@ -94,7 +94,9 @@ rollovers for use in these situations.
    in BCP 14 {{RFC2119}} {{RFC8174}} when, and only when, they appear
    in all capitals, as shown here.
 
-# Transitioning temporarily through insecurity
+# Temporary transition mechanisms
+
+## Transitioning temporarily through insecurity
 
 An alternate approach to rolling DNSKEYs, especially when the toolsets
 being used do not provide easy algorithm rollover approaches, is to
@@ -130,6 +132,42 @@ requirements (steps 2 and 6) that must be followed carefully.
 
 8. If the TTLs were modified in the optional step 1, change them back
    to their preferred values.
+
+## Transitioning using two DNS servers
+
+Another option for performing an algorithm roll is to make use of two
+(or more) NS records, where one of them continues to serve a zone
+signed by the old algorithm and the other nameserver switches to
+serving the zone signed by the new algorithm.  This allows for clients
+that end up at the wrong NS to eventually give up and switch to the
+other, containing the expected algorithm.  The downside of this
+approach is a deliberate delay in resolutions from resolvers that
+query the wrong nameserver for a given DS record. 
+
+The steps for deploying this technique to switch algorithms is as follows:
+
+1. Optional: lower the TTLs of the zone's DS record (if possible) and
+   the SOA's negative TTL (MINIMUM) {{RFC1035}}.
+
+2. Ensure your zone has matching NS records in both the child data and
+   in the parent data.
+
+3. Leaving the old algorithm DS record in the parent zone, resign the
+   child zone using a new algorithm and publish it on 50% of the
+   child's nameservers.
+   
+4. Wait a period of time equal to max(TTL in the zone, DS record).
+
+5. Simultaneously remove the old DS record from the parent, and
+   publish a new DS record referring to the new DNSKEY and its new
+   algorithm.
+   
+6. Wait a period of time equal to max(TTL in the zone, DS record).
+
+7. Update the zones served from the unmodified set of authoritative
+   servers to begin publishing the newer zone with the newer DNSKEYs.
+
+Credit for this idea goes to Tuomo Soini and Paul Wouters.
 
 # Operational considerations
 
@@ -186,7 +224,12 @@ than an unsigned but still available zone.
 # Acknowledgments
 
 The author has discussed the pros and cons of this approach with
-multiple people, including Viktor Dukhovni and Warren Kumari.
+multiple people, including:
+
+- Viktor Dukhovni
+- Warren Kumari.
+- Tuomo Soini 
+- Paul Wouters
 
 # Github Version of this document
 
