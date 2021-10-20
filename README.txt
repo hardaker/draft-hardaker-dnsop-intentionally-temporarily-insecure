@@ -4,12 +4,12 @@
 
 Network Working Group                                        W. Hardaker
 Internet-Draft                                                   USC/ISI
-Intended status: Best Current Practice                 February 21, 2021
-Expires: August 25, 2021
+Intended status: Best Current Practice                   20 October 2021
+Expires: 23 April 2022
 
 
                    Intentionally Temporarily Insecure
-         draft-hardaker-dnsop-intentionally-temporary-insec-00
+         draft-hardaker-dnsop-intentionally-temporary-insec-01
 
 Abstract
 
@@ -34,7 +34,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 25, 2021.
+   This Internet-Draft will expire on 23 April 2022.
 
 Copyright Notice
 
@@ -42,35 +42,37 @@ Copyright Notice
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents
-   (https://trustee.ietf.org/license-info) in effect on the date of
-   publication of this document.  Please review these documents
-   carefully, as they describe your rights and restrictions with respect
-   to this document.  Code Components extracted from this document must
-   include Simplified BSD License text as described in Section 4.e of
-   the Trust Legal Provisions and are provided without warranty as
-   described in the Simplified BSD License.
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Simplified BSD License text
+   as described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Simplified BSD License.
 
 
 
-Hardaker                 Expires August 25, 2021                [Page 1]
+
+Hardaker                  Expires 23 April 2022                 [Page 1]
 
-Internet-Draft     Intentionally Temporarily Insecure      February 2021
+Internet-Draft     Intentionally Temporarily Insecure       October 2021
 
 
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
      1.1.  Requirements notation . . . . . . . . . . . . . . . . . .   3
-   2.  Transitioning temporarily through insecurity  . . . . . . . .   3
-   3.  Operational considerations  . . . . . . . . . . . . . . . . .   4
-   4.  Security considerations . . . . . . . . . . . . . . . . . . .   4
-   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   5
-     5.1.  Normative References  . . . . . . . . . . . . . . . . . .   5
-     5.2.  Informative References  . . . . . . . . . . . . . . . . .   6
-   Appendix A.  Acknowledgments  . . . . . . . . . . . . . . . . . .   6
-   Appendix B.  Github Version of this document  . . . . . . . . . .   6
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   6
+   2.  Temporary transition mechanisms . . . . . . . . . . . . . . .   3
+     2.1.  Transitioning temporarily through insecurity  . . . . . .   3
+     2.2.  Transitioning using two DNS servers . . . . . . . . . . .   4
+   3.  Operational considerations  . . . . . . . . . . . . . . . . .   5
+   4.  Security considerations . . . . . . . . . . . . . . . . . . .   5
+   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   6
+     5.1.  Normative References  . . . . . . . . . . . . . . . . . .   6
+     5.2.  Informative References  . . . . . . . . . . . . . . . . .   7
+   Appendix A.  Acknowledgments  . . . . . . . . . . . . . . . . . .   7
+   Appendix B.  Github Version of this document  . . . . . . . . . .   8
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   8
 
 1.  Introduction
 
@@ -102,18 +104,20 @@ Table of Contents
    published for a sufficient time length, based on the TTL, can K_new
    be safely introduced and published into the zone as well.
 
+
+
+
+
+
+Hardaker                  Expires 23 April 2022                 [Page 2]
+
+Internet-Draft     Intentionally Temporarily Insecure       October 2021
+
+
    Although many DNSSEC signing solutions may automate the algorithm
    rollover steps (making operator involvement unnecessary), many other
    tools do not support automated algorithm updates.  In these
    environments, the most challenging step is requiring that certain
-
-
-
-Hardaker                 Expires August 25, 2021                [Page 2]
-
-Internet-Draft     Intentionally Temporarily Insecure      February 2021
-
-
    RRSIGs be published without the corresponding DNSKEYs that created
    them.  This will likely require operators to use a text editor on the
    contents of a signed zone to carefully select zone records to extract
@@ -132,7 +136,9 @@ Internet-Draft     Intentionally Temporarily Insecure      February 2021
    14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-2.  Transitioning temporarily through insecurity
+2.  Temporary transition mechanisms
+
+2.1.  Transitioning temporarily through insecurity
 
    An alternate approach to rolling DNSKEYs, especially when the
    toolsets being used do not provide easy algorithm rollover
@@ -152,6 +158,18 @@ Internet-Draft     Intentionally Temporarily Insecure      February 2021
 
    2.  Remove all DS records from the parent zone.
 
+
+
+
+
+
+
+
+Hardaker                  Expires 23 April 2022                 [Page 3]
+
+Internet-Draft     Intentionally Temporarily Insecure       October 2021
+
+
    3.  Ensure the zone is considered unsigned by all validating
        resolvers by waiting 2 times the maximum TTL length for the DS
        record to expire from caches.  This is the most critical timing.
@@ -162,14 +180,6 @@ Internet-Draft     Intentionally Temporarily Insecure      February 2021
        DNSKEY(s) with the new algorithm(s) in the zone and publish the
        zone.
 
-
-
-
-Hardaker                 Expires August 25, 2021                [Page 3]
-
-Internet-Draft     Intentionally Temporarily Insecure      February 2021
-
-
    5.  Wait 2 times the zone SOA's published negative cache time to
        ensure the new DNSKEYs will be found by validating resolvers.
 
@@ -177,6 +187,56 @@ Internet-Draft     Intentionally Temporarily Insecure      February 2021
 
    7.  If the TTLs were modified in the optional step 1, change them
        back to their preferred values.
+
+2.2.  Transitioning using two DNS servers
+
+   Another option for performing an algorithm roll is to make use of two
+   (or more) NS records, where one of them continues to serve a zone
+   signed by the old algorithm and the other authoritative server
+   switches to serving the zone using the new DNSKEY and its new
+   algorithm.  This allows for clients that end up at the wrong NS to
+   eventually give up and switch to the other, containing the expected
+   algorithm.  The downside of this approach is the deliberate delay in
+   resolutions for resolvers that query the wrong authoritative server
+   for the DS record they are trying to match.
+
+   The steps for deploying this technique to switch algorithms is as
+   follows:
+
+   1.  Optional: lower the TTLs of the zone's DS record (if possible)
+       and the SOA's negative TTL (MINIMUM) [RFC1035].
+
+   2.  Ensure your zone has matching NS records in both the child data
+       and in the parent data.
+
+   3.  Leaving the old algorithm DS record in the parent zone.  Resign
+       the child zone using a new DNSKEY with the new algorithm and
+       publish it on roughly 50% of the zone's authoritative
+       nameservers.
+
+   4.  Wait a period of time equal to max(TTL in the zone, DS record).
+
+
+
+
+
+
+Hardaker                  Expires 23 April 2022                 [Page 4]
+
+Internet-Draft     Intentionally Temporarily Insecure       October 2021
+
+
+   5.  Simultaneously remove the old DS record from the parent, and
+       publish a new DS record that refers to the new DNSKEY (and its
+       new algorithm).
+
+   6.  Wait a period of time equal to max(TTL in the zone, DS record).
+
+   7.  Update the authoritative nameservers that remained publishing the
+       older copy of the zone.  All authoritative servers can now
+       publish the updated zone with the new DNSKEYs.
+
+   Credit for this idea goes to Tuomo Soini and Paul Wouters.
 
 3.  Operational considerations
 
@@ -208,6 +268,20 @@ Internet-Draft     Intentionally Temporarily Insecure      February 2021
    attacks (for example, cache poisoning attacks) against validating
    resolvers or other validating DNS infrastructure.
 
+
+
+
+
+
+
+
+
+
+Hardaker                  Expires 23 April 2022                 [Page 5]
+
+Internet-Draft     Intentionally Temporarily Insecure       October 2021
+
+
    Most importantly, this will deliberately break certain types of DNS
    records that must be validatable for them to be effective.  This
    includes for example, but not limited to, all DS records for child
@@ -218,14 +292,6 @@ Internet-Draft     Intentionally Temporarily Insecure      February 2021
 
    Given all of this, it leaves the question of: "why would a zone owner
    want to deliberately turn off security temporarily then?", to which
-
-
-
-Hardaker                 Expires August 25, 2021                [Page 4]
-
-Internet-Draft     Intentionally Temporarily Insecure      February 2021
-
-
    there is one principal answer.  Simply put, if the the complexity of
    doing it the correct way is difficult with existing tooling then the
    chances of performing the more complex procedure and introducing an
@@ -264,6 +330,14 @@ Internet-Draft     Intentionally Temporarily Insecure      February 2021
               DOI 10.17487/RFC4509, May 2006,
               <https://www.rfc-editor.org/info/rfc4509>.
 
+
+
+
+Hardaker                  Expires 23 April 2022                 [Page 6]
+
+Internet-Draft     Intentionally Temporarily Insecure       October 2021
+
+
    [RFC6781]  Kolkman, O., Mekking, W., and R. Gieben, "DNSSEC
               Operational Practices, Version 2", RFC 6781,
               DOI 10.17487/RFC6781, December 2012,
@@ -272,15 +346,6 @@ Internet-Draft     Intentionally Temporarily Insecure      February 2021
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
-
-
-
-
-
-Hardaker                 Expires August 25, 2021                [Page 5]
-
-Internet-Draft     Intentionally Temporarily Insecure      February 2021
-
 
 5.2.  Informative References
 
@@ -313,7 +378,23 @@ Internet-Draft     Intentionally Temporarily Insecure      February 2021
 Appendix A.  Acknowledgments
 
    The author has discussed the pros and cons of this approach with
-   multiple people, including Viktor Dukhovni and Warren Kumari.
+   multiple people, including:
+
+   *  Viktor Dukhovni
+
+   *  Warren Kumari.
+
+   *  Tuomo Soini
+
+
+
+
+Hardaker                  Expires 23 April 2022                 [Page 7]
+
+Internet-Draft     Intentionally Temporarily Insecure       October 2021
+
+
+   *  Paul Wouters
 
 Appendix B.  Github Version of this document
 
@@ -333,4 +414,35 @@ Author's Address
 
 
 
-Hardaker                 Expires August 25, 2021                [Page 6]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hardaker                  Expires 23 April 2022                 [Page 8]
