@@ -31,6 +31,8 @@ informative:
   RFC7672:
   RFC6698:
   RFC4255:
+  RFC9904:
+  RFC9905:
 
 --- abstract
 
@@ -151,53 +153,54 @@ requirements (steps 2 and 6) that must be followed carefully.
 
 # Operational considerations
 
-The process of replacing a DNSKEY with an older algorithm, such as
-RSAMD5 or RSASHA1 with a more modern one such as RSASHA512 or
-ECDSAP256SHA256 can be a daunting task if the zone's current tooling
-doesn't provide an easy-to-use solution.  This is the case for zone
-owners that potentially use command line tools that are integrated
-into their zone production environment.
+The process of replacing a DNSKEY with an older algorithm {{RFC9904}},
+such as RSAMD5 {{RFC4034}} or RSASHA1 {{RFC9905}} with a more modern
+one {{RFC9904}} such as RSASHA512 {{RFC5702}} or ECDSAP256SHA256
+{{RFC6605}} can be a daunting task if the zone's current tooling
+doesn't provide an easy-to-use solution.  For example, this may be the
+case for zone owners using command line tools integrated into their
+zone production environment.
 
 This document describes an alternative approach to rolling DNSKEY
 algorithms that may be significantly less prone to operational
-mistakes.  However, understanding of the security considerations of
-using this approach is paramount.
+mistakes.  However, it is paramount that operators understand of the
+security considerations of using this approach.
 
 The document recommends waiting 2 times TTL values in certain cases
 for added assurance that the waiting period is long enough for caches
-to expire.  In reality, waiting only 1 TTL may be sufficient assuming
-all clocks around the world are operating with perfection. 
+to expire.  In reality, waiting slightly longer than 1 TTL may be
+sufficient but requires accepting added risks with propagation timing
+and clock synchronization.
 
 # Security considerations
 
-DNSSEC provides an data integrity protection for DNS data.  This
-document specifically calls out a reason why a zone owner may desire
-to deliberately turn off DNSSEC while changing the zone's DNSKEY's
-cryptographic algorithms.  Thus, this is deliberately turning off
-security which is potentially harmful if an attacker knows when this
-will occur and can use that time window to launch DNS modification
-attacks (for example, cache poisoning attacks) against validating
-resolvers or other validating DNS infrastructure.
+DNSSEC provides data integrity protection for DNS data.  This document
+specifically calls out a reason why a zone owner may desire to
+deliberately turn off this protection while changing the zone's
+DNSKEY's cryptographic algorithms.  Thus, this technique is
+potentially harmful if an attacker knows when this will occur and can
+use that time window to launch DNS modification attacks (for example,
+cache poisoning attacks) against validating resolvers or other
+validating DNS infrastructure.
 
 Most importantly, this will deliberately break certain types of DNS
 records that must be validatable for them to be effective.  This
-includes for example, but not limited to, all DS records for child
-zones, DANE {{RFC6698}}{{RFC7671}}{{RFC7672}}, PGP keys {{RFC7929}},
-and SSHFP{{RFC4255}}.  Zone owners must carefully consider which
-records within their zone depend on DNSSEC being available before
-using the procedure outlined in this document.
+includes for example, but not limited to, all DS records for the
+zone's own children, DANE {{RFC6698}}{{RFC7671}}{{RFC7672}}, PGP key
+fingerprints {{RFC7929}}, and SSHFP{{RFC4255}} fingerprints.  Zone
+owners must carefully consider which records within their zone and
+their zone's children depend on DNSSEC being available before using
+the procedure outlined in this document.
 
 Given all of this, it leaves the question of: "why would a zone owner
 want to deliberately turn off security temporarily then?", to which
-there is one principal answer.  Simply put, if the the complexity of
-doing it the correct way is difficult with existing tooling then the
-chances of performing the more complex procedure and introducing an
-error, likely making the entire zone unavailable during that time
-period, may be significantly higher than the chances of the zone being
-attacked during the transition period of the simpler approach where
-zone availability is less likely to be impacted.  Simply put, an
-invalid zone created by a botched algorithm roll is potentially worse
-than an unsigned but still available zone.
+there is one principal answer: if the the complexity of executing an
+algorithm role the correct way is difficult (or impossible), then the
+chances of introducing an error that causes an operational outage may
+be significantly higher than the chances of the zone being attacked
+during the insecure transition period.  Simply put, an invalid zone
+created by a botched algorithm roll is potentially worse than an
+unsigned but still available zone.
 
 --- back
 
@@ -206,8 +209,11 @@ than an unsigned but still available zone.
 The author has discussed the pros and cons of this approach with
 multiple people, including:
 
+- Vladimír Čunát
+- Peter van Dijk
 - Viktor Dukhovni
 - Warren Kumari.
+- Scott Rose
 - Tuomo Soini 
 - Paul Wouters
 
