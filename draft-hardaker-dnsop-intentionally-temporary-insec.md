@@ -24,6 +24,7 @@ normative:
   RFC4509:
   RFC6781:
   RFC8174:
+  RFC4034:
 
 informative:
   RFC7929:
@@ -33,6 +34,8 @@ informative:
   RFC4255:
   RFC9904:
   RFC9905:
+  RFC5702:
+  RFC6605:
 
 --- abstract
 
