@@ -1,7 +1,7 @@
 ---
 title: "Intentionally Temporarily Degraded or Insecure"
 abbrev: "Intentionally Temporarily Degraded or Insecure"
-docname: draft-hardaker-dnsop-intentionally-temporary-insec-01
+docname: draft-hardaker-dnsop-intentionally-temporary-insec-latest
 category: bcp
 ipr: trust200902
 
@@ -12,7 +12,7 @@ author:
   -
     ins: W. Hardaker
     name: Wes Hardaker
-    org: USC/ISI
+    org: Google
     email: ietf@hardakers.net
 
 
@@ -38,7 +38,7 @@ Performing DNSKEY algorithm transitions with DNSSEC signing is
 unfortunately challenging to get right in practice without decent
 tooling support.  This document weighs the correct, completely secure
 way of rolling keys against an alternate, significantly simplified,
-method that takes a zone through an insecure state.
+method that takes a zone through an insecure state first.
 
 --- middle
 
@@ -59,6 +59,7 @@ uninterrupted DNSSEC protection for their zones.  The steps in this
 document are designed to ensure that all DNSKEY records and all DS
 {{RFC4509}} records (and the rest of a zone records) are properly
 validatable by validating resolvers throughout the entire process.
+Whenever possible, this procedure SHOULD be followed.
 
 Unfortunately, there are a number of these steps that are challenging
 to accomplish either because the timing is tricky to get right or
@@ -67,21 +68,28 @@ easily.  Some examples:
 
 1. The second step in Section 4.1.4 of {{RFC6781}} requires that a new
    key with the new algorithm (which we refer to as K_new) be created,
-   but not yet published.  This step also requires that both the old
-   key (K_old) and K_new sign and generate signatures for the zone,
-   but with only the K_old key is published even though signatures
-   from K_new are included.  After this odd mix has been published for
-   a sufficient time length, based on the TTL, can K_new be safely
-   introduced and published into the zone as well.
-2. The new algorithm to be deployed isn't supported in the existing
-   DNSSEC signing software and it is not possible (or not desired) to
-   move the private key into the DNSSEC signer that supports the new
-   algorithm choice.
+   but not yet published.  This step requires that both the old key
+   (K_old) and K_new both sign and generate signatures for the zone,
+   but without K_new actually being published in the zone even though
+   its signatures.  Put another way, only K_old can exist in the zone
+   even though signatures from both keys must be included.  After this
+   odd mix has been published for a sufficient time length, based on
+   the TTL, can K_new be safely introduced and published into the zone
+   as well.
+
+2. Sometimes one of the goals is to transfer zone management to new
+   authoritative server software. But, if the newly desired algorithm
+   isn't supported in the existing (to be replaced) DNSSEC signing
+   software, then the transfer to the new software must be
+   accomplished first.  However, if there isn't an overlap between the
+   algorithms available in both software sets, it becomes practically
+   impossible to even transfer the zone since neither software set can
+   use both K_old and K_new.
 
 
-Although many DNSSEC signing solutions may automate the algorithm
+Although some DNSSEC signing solutions may automate the algorithm
 rollover steps (making operator involvement unnecessary), many other
-tools do not support automated algorithm updates.  In these
+tools do not yet support automated algorithm updates.  In these
 environments, the most challenging step is requiring that certain
 RRSIGs be published without the corresponding DNSKEYs that created
 them.  This will likely require operators to use a text editor on the
@@ -89,9 +97,9 @@ contents of a signed zone to carefully select zone records to extract
 before publication.  This introduces potentially significant operator
 error(s).
 
-This document proposes an alternate, potentially more operationally
-robust but less secure, approach to performing algorithm DNSKEY
-rollovers for use in these situations.
+This document proposes an alternate approach that MAY be used to
+perform algorithm DNSKEY rollovers in these situations, which is
+potentially more operationally robust but less secure.
 
 ## Requirements notation
 
@@ -101,36 +109,37 @@ rollovers for use in these situations.
    in BCP 14 {{RFC2119}} {{RFC8174}} when, and only when, they appear
    in all capitals, as shown here.
 
-# Temporary transition mechanisms
+# Transitioning temporarily through insecurity
 
-## Transitioning temporarily through insecurity
-
-An alternate approach to rolling DNSKEYs, especially when the toolsets
-being used do not provide easy algorithm rollover approaches, is to
-intentionally make the zone become insecure while the DNSKEYs and
-algorithms are swapped.  At a high level, this means removing all DS
-records from the parent zone during the removal of the old key and the
-introduction of a new key using a new algorithm.  Zone TTLs may be
-significantly shortened during this period to minimize the period of
-insecurity.
+An alternate approach to properly rolling DNSKEYs to a new algorithm,
+is to intentionally make the zone become insecure while the DNSKEYs
+and algorithms are swapped.  At a high level, this means removing all
+DS records from the parent zone first, then remove the old key and
+introduce the new key with its new algorithm during this period.  Zone
+TTLs can be significantly shortened during this period to minimize the
+period of insecurity.
 
 Below are the enumerated steps required by this alternate transition
 mechanism.  Note that there are still two critical waiting time
 requirements (steps 2 and 6) that must be followed carefully.
 
-1. Optional: lower the TTLs of the zone's DS record (if possible),
-   and the TTL of the DNSKEY RRset.
+1. Optional: lower the TTLs of both the zone's DS record, and the TTL
+   of the DNSKEY RRset.  Note that in some operational deployments the
+   parent zone may set the TTL of the DS record.
 
 2. Remove all DS records from the parent zone.
 
 3. Ensure the zone is considered unsigned by all validating resolvers
-   by waiting 2 times the maximum TTL length for the DS record, and/or 2 times the largest TTL found in the zone (whichever is larger) to
-   expire from caches.  This is the most critical timing.  The author
+   by waiting 2 times the maximum TTL length for the DS record, and/or
+   2 times the largest TTL found in the zone (whichever is larger).
+   This is the most critical timing as all records associated with
+   K_old must be cleared from validating resolver caches.  (The author
    of this document failed to wait the required time once.  It was not
-   pretty.
+   pretty.)
 
-4. Replace the old DNSKEY(s) with the old algorithm with new DNSKEY(s)
-   with the new algorithm(s) in the zone and publish the zone.
+4. Replace the old DNSKEY(s) using the old algorithm with new
+   DNSKEY(s) using the new algorithm(s) in the zone and publish the
+   zone.
    
 6. Wait 2 times the largest TTL found in the zone to ensure
    the new DNSKEYs will be found by validating resolvers.
@@ -139,44 +148,6 @@ requirements (steps 2 and 6) that must be followed carefully.
 
 8. If the TTLs were modified in the optional step 1, change them back
    to their preferred values.
-
-## Transitioning using two DNS servers
-
-Another option for performing an algorithm roll is to make use of two
-(or more) NS records, where one of them continues to serve a zone
-signed by the old algorithm and the other authoritative server
-switches to serving the zone using the new DNSKEY and its new
-algorithm.  This allows for clients that end up at the wrong NS to
-eventually give up and switch to the other, containing the expected
-algorithm.  The downside of this approach is the deliberate delay in
-resolutions for resolvers that query the wrong authoritative server
-for the DS record they are trying to match.
-
-The steps for deploying this technique to switch algorithms is as follows:
-
-1. Optional: lower the TTLs of the zone's DS record (if possible) and
-   the SOA's negative TTL (MINIMUM) {{RFC1035}}.
-
-2. Ensure your zone has matching NS records in both the child data and
-   in the parent data.
-
-3. Leaving the old algorithm DS record in the parent zone.  Resign the
-   child zone using a new DNSKEY with the new algorithm and publish it
-   on roughly 50% of the zone's authoritative nameservers.
-   
-4. Wait a period of time equal to max(TTL in the zone, DS record).
-
-5. Simultaneously remove the old DS record from the parent, and
-   publish a new DS record that refers to the new DNSKEY (and its new
-   algorithm).
-   
-6. Wait a period of time equal to max(TTL in the zone, DS record).
-
-7. Update the authoritative nameservers that remained publishing the
-   older copy of the zone.  All authoritative servers can now publish
-   the updated zone with the new DNSKEYs.
-
-Credit for this idea goes to Tuomo Soini and Paul Wouters.
 
 # Operational considerations
 
