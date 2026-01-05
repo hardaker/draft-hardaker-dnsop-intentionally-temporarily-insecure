@@ -145,7 +145,7 @@ requirements (steps 2 and 6) that must be followed carefully.
 4. Replace the old DNSKEY(s) using the old algorithm with new
    DNSKEY(s) using the new algorithm(s) in the zone and publish the
    zone.
-   
+
 6. Wait 2 times the largest TTL found in the zone to ensure
    the new DNSKEYs will be found by validating resolvers.
 
@@ -217,7 +217,7 @@ multiple people, including:
 - Viktor Dukhovni
 - Warren Kumari.
 - Scott Rose
-- Tuomo Soini 
+- Tuomo Soini
 - Paul Wouters
 
 # Github Version of this document
